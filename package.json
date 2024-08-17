@@ -1,0 +1,28 @@
+{
+  "name": "widt-retoriek-backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/BSTN/widt-retoriek-backend.git",
+  "author": "BSTN <basten@bstn.nl>",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "dev": "docker compose up -d && docker attach widt-retoriek-app",
+    "tsc": "tsc",
+    "dev2": "tsc --watch",
+    "open": "docker attach widt-retoriek-app",
+    "edit": "docker exec -it widt-retoriek-app sh",
+    "stop": "docker compose down",
+    "app": "nodemon dist/index.js"
+  },
+  "dependencies": {
+    "@types/express": "^4.17.21",
+    "@types/sequelize": "^4.28.20",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "mariadb": "^3.3.1",
+    "nodemon": "^3.1.4",
+    "sequelize": "^6.37.3",
+    "typescript": "^5.5.4"
+  }
+}

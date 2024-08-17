@@ -1,0 +1,53 @@
+services:
+  retorieknginx:
+    image: nginx
+    container_name: widt-retoriek-nginx
+    tty: true
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      # - /data/videos:/data/videos
+    networks:
+      - traefik-public2
+  retoriekapp:
+    container_name: widt-retoriek-app
+    image: node:18.1.0-alpine
+    # image: timbru31/node-alpine-git
+    working_dir: /app
+    command: sh -c "yarn install && yarn app"
+    networks:
+      - traefik-public2
+    expose:
+      - 80
+    volumes:
+      - type: bind
+        source: ./
+        target: /app
+    environment:
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+  retoriekdb:
+    image: mariadb
+    container_name: widt-retoriek-mariadb
+    restart: always
+    volumes:
+      - ./mariadb:/var/lib/mysql
+      - ./:/data
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: database
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    networks:
+      - traefik-public2
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 5555:8080
+    networks:
+      - traefik-public2
+networks:
+  traefik-public2:
+    name: traefik-public2
