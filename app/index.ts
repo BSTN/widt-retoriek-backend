@@ -45,6 +45,14 @@ USERDATA.sync().catch((err) => {
 
 widtretoriekapp.all('/save', async (req, res, next) => {
 
+  if (!req.body) {
+    res.send({no:'body'})
+  }
+
+  if (!req.body.userid) {
+    res.send({ error: 'missing userid'})
+  }
+
   // send to database
   USERDATA.upsert({ userid: req.body.userid, data: JSON.stringify(req.body.answers) })
   res.send({done: 'ok'})
@@ -55,5 +63,56 @@ widtretoriekapp.all('/download', async (req, res, next) => {
   // send to database
   res.send(await USERDATA.findAll())
 })
+
+widtretoriekapp.all('/random', async (req, res, next) => {
+
+  const RANDOMOPTIONS = [1, 2, 3, 4]
+  const results:any = {}
+  RANDOMOPTIONS.map(x => {
+    results[x] = 0
+  })
+  // find next random version
+  const all = await USERDATA.findAll()
+
+  all.map(x => {
+    const data = JSON.parse(x.dataValues.data)
+    if (data._random) {
+      results[data._random] += 1
+    }
+  })
+
+  const inAnArray = []
+  for (const key in results) {
+    const value = results[key]
+    inAnArray.push({key, value})
+  }
+  inAnArray.sort((a, b) => a.value > b.value ? -1 : 1)
+  inAnArray.reverse()
+  const randomPositionOfTopThree = Math.floor(Math.random() * 3)
+  res.send({ random: inAnArray[randomPositionOfTopThree].key })
+})
+
+widtretoriekapp.all('/distribution', async (req, res, next) => {
+
+  const RANDOMOPTIONS = [1, 2, 3, 4, 5, 6, 7, 8]
+  const results:any = {}
+  RANDOMOPTIONS.map(x => {
+    results[x] = 0
+  })
+  // find next random version
+  const all = await USERDATA.findAll()
+  all.map(x => {
+    const data = JSON.parse(x.dataValues.data)
+    if (data._random) {
+      results[data._random] += 1
+    }
+  })
+
+  res.send({
+    totalRows: all.length,
+    distribution: results
+ })
+})
+
 
 export { widtretoriekapp}
