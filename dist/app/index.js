@@ -17,6 +17,8 @@ const express_1 = __importDefault(require("express"));
 const connection_1 = __importDefault(require("./connection"));
 const sequelize_1 = require("sequelize");
 const cors_1 = __importDefault(require("cors"));
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 const widtretoriekapp = express_1.default.Router();
 exports.widtretoriekapp = widtretoriekapp;
 widtretoriekapp.use((0, cors_1.default)({
@@ -100,4 +102,39 @@ widtretoriekapp.all('/distribution', (req, res, next) => __awaiter(void 0, void 
         totalRows: all.length,
         distribution: results
     });
+}));
+widtretoriekapp.all('/backup', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const all = yield USERDATA.findAll({ raw: true });
+    const rows = [];
+    for (let i in all) {
+        const row = Object.assign({}, all[i]);
+        if ('data' in row && typeof row.data === 'string') {
+            const data = JSON.parse(row.data);
+            rows.push(Object.assign(row, data));
+            delete row.data;
+        }
+    }
+    // upload
+    // Create a WebDAV client
+    const { createClient } = yield import("webdav");
+    const client = createClient("https://surfdrive.surf.nl/files/public.php/webdav/", { username: process.env.SURFUSER, password: process.env.SURFPASS });
+    try {
+        // Upload the file to the WebDAV server
+        const name = new Date().toLocaleString().replace(',', '').replace(/\//g, '-') + '.json';
+        if (process.env.LOCAL) {
+            res.send({ message: 'Not sending, local file.' });
+        }
+        else {
+            const ret = yield client.putFileContents(name, JSON.stringify(rows), { overwrite: false });
+            if (ret) {
+                res.send({ message: 'File uploaded successfully.' });
+            }
+            else {
+                res.send({ message: 'Something went wrong.' });
+            }
+        }
+    }
+    catch (error) {
+        res.send({ message: 'Error uploading file:', error });
+    }
 }));

@@ -3,6 +3,8 @@ import connection from "./connection";
 import { Sequelize, DataTypes } from "sequelize";
 import type { USERDATATABLE } from '../types/types'
 import cors from 'cors';
+import dotenv from 'dotenv'
+dotenv.config()
 
 const widtretoriekapp = express.Router()
 
@@ -114,5 +116,43 @@ widtretoriekapp.all('/distribution', async (req, res, next) => {
  })
 })
 
+widtretoriekapp.all('/backup', async (req, res, next) => {
+  const all = await USERDATA.findAll({raw: true})
+  const rows = []
+  for (let i in all) {
+    const row = Object.assign({}, all[i])
+    if ('data' in row && typeof row.data === 'string') {
+      const data = JSON.parse(row.data)
+      rows.push(Object.assign(row, data))
+      delete row.data
+    }
+  }
+  // upload
+  // Create a WebDAV client
+  const { createClient } = await import("webdav")
 
-export { widtretoriekapp}
+  const client = createClient("https://surfdrive.surf.nl/files/public.php/webdav/",{username: process.env.SURFUSER,password: process.env.SURFPASS});
+  try {
+    // Upload the file to the WebDAV server
+    const name = new Date().toLocaleString().replace(',', '').replace(/\//g, '-') + '.json';
+    if (process.env.LOCAL) {
+      res.send({ message: 'Not sending, local file.' })
+    } else {
+      const ret = await client.putFileContents(name, JSON.stringify(rows), { overwrite: false });
+      if (ret) {
+        res.send({ message: 'File uploaded successfully.' })
+      } else {
+        res.send({ message: 'Something went wrong.' })
+      }
+    }
+    
+  } catch (error) {
+    res.send({ message: 'Error uploading file:', error });
+  }
+
+})
+
+
+export { widtretoriekapp }
+
+
