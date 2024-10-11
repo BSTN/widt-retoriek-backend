@@ -78,7 +78,7 @@ widtretoriekapp.all('/random', async (req, res, next) => {
 
   all.map(x => {
     const data = JSON.parse(x.dataValues.data)
-    if (data._random && RANDOMOPTIONS.includes(data._random)) {
+    if (data._random && RANDOMOPTIONS.includes(parseInt(data._random))) {
       results[data._random] += 1
     }
   })
@@ -90,13 +90,13 @@ widtretoriekapp.all('/random', async (req, res, next) => {
   }
   inAnArray.sort((a, b) => a.value > b.value ? -1 : 1)
   inAnArray.reverse()
-  const randomPositionOfTopThree = Math.floor(Math.random() * 3)
-  res.send({ random: inAnArray[randomPositionOfTopThree].key })
+  // const randomPositionOfTopThree = Math.floor(Math.random() * 2)
+  res.send({ random: inAnArray[0].key })
 })
 
 widtretoriekapp.all('/distribution', async (req, res, next) => {
 
-  const RANDOMOPTIONS = [1, 2, 3, 4, 5, 6, 7, 8]
+  const RANDOMOPTIONS = [1, 2, 3, 4]
   const results:any = {}
   RANDOMOPTIONS.map(x => {
     results[x] = 0
@@ -105,7 +105,7 @@ widtretoriekapp.all('/distribution', async (req, res, next) => {
   const all = await USERDATA.findAll()
   all.map(x => {
     const data = JSON.parse(x.dataValues.data)
-    if (data._random) {
+    if (data._random && parseInt(data._random) in RANDOMOPTIONS) {
       results[data._random] += 1
     }
   })
