@@ -75,10 +75,10 @@ widtretoriekapp.all('/random', async (req, res, next) => {
   })
   // find next random version
   const all = await USERDATA.findAll()
-
   all.map(x => {
     const data = JSON.parse(x.dataValues.data)
     if (data._random && RANDOMOPTIONS.includes(parseInt(data._random))) {
+      console.log('includes', data._random)
       results[data._random] += 1
     }
   })
@@ -105,7 +105,7 @@ widtretoriekapp.all('/distribution', async (req, res, next) => {
   const all = await USERDATA.findAll()
   all.map(x => {
     const data = JSON.parse(x.dataValues.data)
-    if (data._random && parseInt(data._random) in RANDOMOPTIONS) {
+    if (data._random && RANDOMOPTIONS.includes(parseInt(data._random))) {
       results[data._random] += 1
     }
   })
