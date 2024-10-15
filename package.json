@@ -8,8 +8,8 @@
   "private": false,
   "scripts": {
     "dev": "docker compose up -d && docker attach widt-retoriek-app",
-    "tsc": "tsc",
-    "dev2": "tsc --watch",
+    "tsc": "tsc --watch",
+    "dev2": "docker exec -it widt-retoriek-app yarn tsc",
     "open": "docker attach widt-retoriek-app",
     "edit": "docker exec -it widt-retoriek-app sh",
     "stop": "docker compose down",

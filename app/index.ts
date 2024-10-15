@@ -78,7 +78,6 @@ widtretoriekapp.all('/random', async (req, res, next) => {
   all.map(x => {
     const data = JSON.parse(x.dataValues.data)
     if (data._random && RANDOMOPTIONS.includes(parseInt(data._random))) {
-      console.log('includes', data._random)
       results[data._random] += 1
     }
   })
